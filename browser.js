@@ -4,7 +4,7 @@ const fs = require("fs");
 const mkdirp = require('mkdirp');
 
 
-async function browserStart(user, password,url) {
+async function browserStart(user, password, url) {
     await (async () => {
         const browser = await puppeteer.launch({args: ['--no-sandbox']});
         const page = await browser.newPage();
@@ -12,7 +12,7 @@ async function browserStart(user, password,url) {
         let addr = `https://${url}/`
 
         try {
-            await page.goto(addr);
+            await page.goto(addr, {waitUntil: 'networkidle0'});
             console.log(`Открываю страницу: ${addr}`);
         } catch (error) {
             console.log(`Не удалось открыть страницу: ${addr} ошибка: ${error}`);
@@ -25,7 +25,7 @@ async function browserStart(user, password,url) {
         await page.keyboard.type(password);
         await page.click('input[type="submit"]');
         console.log("вход...")
-        await new Promise(r => setTimeout(r, 3000));
+        await page.waitForNavigation({waitUntil: 'networkidle0'});
 
         let arrFolders = [2, 3, 4, 5, 6] //1??
         // 6 черновики// 5 отправленные// 4 спам// 3 корзина// 2 входящие
@@ -55,11 +55,9 @@ async function browserStart(user, password,url) {
             }
 
             await page.goto(addr + `h/search?sfi=${id}`)
-            await new Promise(r => setTimeout(r, 500));
             const t = await page.$$eval(".CB", rows => rows.map(it => it.outerHTML));
             let i = Array.from(t.toString().matchAll(/value="(.*?)"/g)).map(it => it[1])
             arr.push({id: id, dirname: a, isd: i})
-
         }
         //console.log(arr)
 
@@ -78,9 +76,7 @@ async function browserStart(user, password,url) {
                 console.log(addrMail)
                 try {
                     await page.goto(addrMail);
-                    //console.log(`Открываю страницу: ${addrMail}`);
                     await page.pdf({path: `${dir}/screenshot.pdf`, printBackground: true});
-
                     await page.goto(addrLetter)
                     let letter = await page.content();
                     fs.writeFileSync(`${dir}/letter.txt`, letter);
