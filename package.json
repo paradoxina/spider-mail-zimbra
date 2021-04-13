@@ -11,8 +11,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "extract-zip": "^2.0.1",
     "mkdirp": "1.0.4",
     "moment": "2.29.1",
-    "puppeteer": "8.0.0"
+    "puppeteer": "8.0.0",
+    "unzipper": "^0.10.11"
+  },
+  "devDependencies": {
+    "request": "^2.88.2"
   }
 }
